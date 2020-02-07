@@ -7,6 +7,9 @@ namespace grasmanek94.FindCloserBed
 {
     public class CustomBedTracker
     {
+        // "probably quicker to loop beds than to calculate corners" threshold
+        private const int OptimizationAvailableBedThreshold = 8;
+
         public static Dictionary<Colony, CustomBedTracker> trackers = new Dictionary<Colony, CustomBedTracker>();
 
         private Dictionary<Vector3Int, Chunk> chunks;
@@ -140,14 +143,22 @@ namespace grasmanek94.FindCloserBed
 
         private void FindClosestBed(Chunk chunk, Vector3Int position, ref Vector3Int bedPosition, ref BedTracker.Bed bed, ref int bedDistance)
         {
-            if(chunk.AvailableBeds == 0)
+
+            if (chunk.AvailableBeds == 0)
             {
                 return;
             }
 
+            if(chunk.AvailableBeds < OptimizationAvailableBedThreshold && !chunk.WithinRange(position, bedDistance))
+            {
+                return;
+            }
+
+            int resultDistance = bedDistance * bedDistance;
+
             lock (chunk)
             {
-                int resultDistance = bedDistance * bedDistance;
+
                 foreach (var bedEntry in chunk.Beds)
                 {
                     var localBed = bedEntry.Value;

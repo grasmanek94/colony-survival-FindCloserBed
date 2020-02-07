@@ -126,8 +126,16 @@ namespace grasmanek94.FindCloserBed
 				}
 			}
 
-			Log.WriteWarning("FindCloserBed: Did not find any available beds");
+			// Log.WriteWarning("FindCloserBed: Did not find any available beds");
 			return true;
+		}
+
+		static void Postfix(ColonyBeds __instance, ref bool __result, Vector3Int position, ref Vector3Int bedPosition, ref BedTracker.Bed bed, int boxradius)
+		{
+			if (!__result)
+			{
+				// Log.WriteWarning("   ... But game did not find a bed either");
+			}
 		}
 	}
 }

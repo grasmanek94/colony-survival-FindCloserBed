@@ -27,6 +27,43 @@ namespace grasmanek94.FindCloserBed
             return position / ChunkSize;
         }
 
+        public Vector3Int GetCenterPosition()
+        {
+            return (Address * ChunkSize) - (ChunkSize / 2);
+        }
+
+        public Vector3Int[] GetCorners()
+        {
+            Vector3Int center = GetCenterPosition();
+            int modifier = (ChunkSize / 2);
+
+            return new Vector3Int[]
+            {
+                new Vector3Int(center.x - modifier, center.y - modifier, center.z - modifier),
+                new Vector3Int(center.x - modifier, center.y - modifier, center.z + modifier),
+                new Vector3Int(center.x - modifier, center.y + modifier, center.z - modifier),
+                new Vector3Int(center.x - modifier, center.y + modifier, center.z + modifier),
+                new Vector3Int(center.x + modifier, center.y - modifier, center.z - modifier),
+                new Vector3Int(center.x + modifier, center.y - modifier, center.z + modifier),
+                new Vector3Int(center.x + modifier, center.y + modifier, center.z - modifier),
+                new Vector3Int(center.x + modifier, center.y + modifier, center.z + modifier)
+            };
+        }
+
+        public bool WithinRange(Vector3Int position, int range)
+        {
+            Vector3Int[] corners = GetCorners();
+            int dblRange = range * range;
+            foreach(Vector3Int corner in corners)
+            {
+                if((corner - position).Magnitude < dblRange)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public void Add(Vector3Int position, BedState bedState)
         {
             Beds.Add(position, bedState);
