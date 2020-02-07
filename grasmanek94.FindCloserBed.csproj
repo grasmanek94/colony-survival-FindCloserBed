@@ -60,6 +60,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BedState.cs" />
+    <Compile Include="CustomBedTracker.cs" />
+    <Compile Include="Chunk.cs" />
     <Compile Include="FindCloserBed.cs" />
     <Compile Include="FindCloserBedHooks.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

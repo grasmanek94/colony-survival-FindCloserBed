@@ -4,20 +4,8 @@ using Harmony;
 using Pipliz;
 using System.Collections.Generic;
 
-namespace grasmanek94.Statistics
+namespace grasmanek94.FindCloserBed
 {
-	public class BedState
-	{
-		public BedTracker.Bed Bed { get; set; }
-		public bool State { get; set; }
-
-		public BedState(BedTracker.Bed bed, bool state)
-		{
-			Bed = bed;
-			State = state;
-		}
-	}
-
 	[HarmonyPatch(typeof(ColonyBeds))]
 	[HarmonyPatch("Add")]
 	public class ColonyBedsHookAdd
@@ -29,26 +17,19 @@ namespace grasmanek94.Statistics
 				return;
 			}
 
-			var beds = ColonyBedsHookTryGetClosestUnused.beds;
-			lock (beds)
+			var trackers = CustomBedTracker.trackers;
+			lock (trackers)
 			{
-				Dictionary<Vector3Int, BedState> bedPositions;
-				if (!beds.TryGetValue(__instance.Owner, out bedPositions))
+				CustomBedTracker tracker;
+				if (!trackers.TryGetValue(__instance.Owner, out tracker))
 				{
-					bedPositions = new Dictionary<Vector3Int, BedState>();
-					beds.Add(__instance.Owner, bedPositions);
+					tracker = new CustomBedTracker();
+					trackers.Add(__instance.Owner, tracker);
 				}
 
-				lock (bedPositions)
+				lock (tracker)
 				{
-					Chunk chunk = World.GetChunk(blockPosition.ToChunk());
-					BlockEntityTracker.EntityChunk entityChunk = chunk?.GetEntities();
-					IBlockEntity blockEntity;
-					BedTracker.Bed bed;
-					if (entityChunk != null && entityChunk.TryGet(blockPosition.ToChunkLocal(), out blockEntity) && (bed = (blockEntity as BedTracker.Bed)) != null)
-					{
-						bedPositions.Add(blockPosition, new BedState(bed, false));
-					}
+					tracker.Add(blockPosition);
 				}
 			}
 		}
@@ -65,24 +46,21 @@ namespace grasmanek94.Statistics
 				return;
 			}
 
-			var beds = ColonyBedsHookTryGetClosestUnused.beds;
-			lock (beds)
+			var trackers = CustomBedTracker.trackers;
+			lock (trackers)
 			{
-				Dictionary<Vector3Int, BedState> bedPositions;
-				if (!beds.TryGetValue(__instance.Owner, out bedPositions))
+				CustomBedTracker tracker;
+				if (!trackers.TryGetValue(__instance.Owner, out tracker))
 				{
 					return;
 				}
 
-				lock (bedPositions)
+				lock (tracker)
 				{
-					if (bedPositions.Count <= 1)
+					tracker.Remove(blockPosition);
+					if(tracker.Count == 1)
 					{
-						beds.Remove(__instance.Owner);
-					}
-					else
-					{
-						bedPositions.Remove(blockPosition);
+						trackers.Remove(__instance.Owner);
 					}
 				}
 			}
@@ -100,24 +78,18 @@ namespace grasmanek94.Statistics
 				return;
 			}
 
-			var beds = ColonyBedsHookTryGetClosestUnused.beds;
-			lock (beds)
+			var trackers = CustomBedTracker.trackers;
+			lock (trackers)
 			{
-				Dictionary<Vector3Int, BedState> bedPositions;
-				if (!beds.TryGetValue(__instance.Owner, out bedPositions))
+				CustomBedTracker tracker;
+				if (!trackers.TryGetValue(__instance.Owner, out tracker))
 				{
 					return;
 				}
 
-				lock (bedPositions)
+				lock (tracker)
 				{
-					BedState bedState;
-
-					if (!bedPositions.TryGetValue(blockPosition, out bedState))
-					{
-						return;
-					}
-					bedState.State = state;
+					tracker.SetState(blockPosition, state);
 				}
 			}
 		}
@@ -127,8 +99,6 @@ namespace grasmanek94.Statistics
 	[HarmonyPatch("TryGetClosestUnused")]
 	public class ColonyBedsHookTryGetClosestUnused
 	{
-		public static Dictionary<Colony, Dictionary<Vector3Int, BedState>> beds = new Dictionary<Colony, Dictionary<Vector3Int, BedState>>();
-
 		static bool Prefix(ColonyBeds __instance, ref bool __result, Vector3Int position, out Vector3Int bedPosition, out BedTracker.Bed bed, int boxradius)
 		{
 			bed = null;
@@ -139,47 +109,22 @@ namespace grasmanek94.Statistics
 				return true;
 			}
 
-			Dictionary<Vector3Int, BedState> localBeds;
-
-			if (!beds.TryGetValue(__instance.Owner, out localBeds))
+			var trackers = CustomBedTracker.trackers;
+			lock (trackers)
 			{
-				return true;
-			}
-
-			lock (localBeds)
-			{
-				if (localBeds.Count == 0)
+				CustomBedTracker tracker;
+				if (!trackers.TryGetValue(__instance.Owner, out tracker))
 				{
 					return true;
 				}
-			}
 
-			int resultDistance = boxradius * boxradius;
-
-			lock (beds)
-			{
-				foreach(var bedEntry in localBeds)
+				lock (tracker)
 				{
-					var localBed = bedEntry.Value;
-
-					if(localBed.State || !localBed.Bed.IsValid)
-					{
-						continue;
-					}
-
-					var localBedPos = bedEntry.Key;
-
-					int distance = (localBedPos - position).Magnitude;
-					if (distance < resultDistance)
-					{
-						resultDistance = distance;
-						bedPosition = localBedPos;
-						bed = localBed.Bed;
-					}
+					tracker.TryGetClosestUnused(position, out bedPosition, out bed, boxradius);
 				}
 			}
 
-			if(bed == null)
+			if (bed == null)
 			{
 				return true;
 			}
