@@ -91,7 +91,7 @@ namespace grasmanek94.FindCloserBed
             }
         }
 
-        public bool TryGetClosestUnused(Vector3Int position, out Vector3Int bedPosition, out BedTracker.Bed bed, int boxradius = 200)
+        public bool TryGetClosestUnused(Vector3Int position, out Vector3Int bedPosition, out BedTracker.Bed bed, int boxradius)
         {
             Vector3Int address = Chunk.GetChunkAddress(position);
 
@@ -139,7 +139,7 @@ namespace grasmanek94.FindCloserBed
 
         private void FindClosestBed(Chunk chunk, Vector3Int position, ref Vector3Int bedPosition, ref BedTracker.Bed bed, ref int bedDistance)
         {
-            if(chunk.AvailableBeds < 1)
+            if(chunk.AvailableBeds == 0)
             {
                 return;
             }

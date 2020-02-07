@@ -120,18 +120,15 @@ namespace grasmanek94.FindCloserBed
 
 				lock (tracker)
 				{
-					tracker.TryGetClosestUnused(position, out bedPosition, out bed, boxradius);
+					if(tracker.TryGetClosestUnused(position, out bedPosition, out bed, boxradius))
+					{
+						__result = true;
+						return false;
+					}
 				}
 			}
 
-			if (bed == null)
-			{
-				return true;
-			}
-
-			__result = true;
-
-			return false;
+			return true;
 		}
 	}
 }

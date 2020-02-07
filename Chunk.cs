@@ -5,7 +5,7 @@ namespace grasmanek94.FindCloserBed
 {
     public class Chunk
     {
-        public const int ChunkSize = 8;
+        public const int ChunkSize = 16;
 
         public Vector3Int Address { get; private set; }
 
@@ -34,6 +34,17 @@ namespace grasmanek94.FindCloserBed
 
         public void Remove(Vector3Int position)
         {
+            BedState bedState;
+            if (!GetBedState(position, out bedState))
+            {
+                return;
+            }
+
+            if(bedState.State)
+            {
+                --UsedBeds;
+            }
+
             Beds.Remove(position);
         }
 
@@ -57,13 +68,10 @@ namespace grasmanek94.FindCloserBed
 
             bedState.State = state;
 
-            if (state == false)
-            {
-                --UsedBeds;
-            }
-            else
-            {
+            if (state) {
                 ++UsedBeds;
+            } else {
+                --UsedBeds;
             }
         }
     }
