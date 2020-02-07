@@ -1,8 +1,6 @@
-﻿using BlockEntities;
-using BlockEntities.Implementations;
+﻿using BlockEntities.Implementations;
 using Harmony;
 using Pipliz;
-using System.Collections.Generic;
 
 namespace grasmanek94.FindCloserBed
 {
@@ -128,6 +126,7 @@ namespace grasmanek94.FindCloserBed
 				}
 			}
 
+			Log.WriteWarning("FindCloserBed: Did not find any available beds");
 			return true;
 		}
 	}

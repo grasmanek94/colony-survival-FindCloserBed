@@ -124,17 +124,18 @@ namespace grasmanek94.FindCloserBed
                                 {
                                     FindClosestBed(chunk, position, ref bedPosition, ref bed, ref bedDistance);
                                 }
-                                if (bed != null)
-                                {
-                                    return true;
-                                }
                             }
                         }
+                    }
+
+                    if (bed != null)
+                    {
+                        return true;
                     }
                 }
             }
 
-            return false;
+            return bed != null;
         }
 
         private void FindClosestBed(Chunk chunk, Vector3Int position, ref Vector3Int bedPosition, ref BedTracker.Bed bed, ref int bedDistance)
