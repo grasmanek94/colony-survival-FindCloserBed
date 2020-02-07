@@ -66,6 +66,7 @@
     <Compile Include="FindCloserBed.cs" />
     <Compile Include="FindCloserBedHooks.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ClassUtility.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
