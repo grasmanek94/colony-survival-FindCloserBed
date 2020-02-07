@@ -154,8 +154,6 @@ namespace grasmanek94.Statistics
 				}
 			}
 
-			Pipliz.Collections.SortedList<Vector3Int, ColonyBeds.BedChunk> bedChunks = __instance.BedChunks;
-
 			int resultDistance = boxradius * boxradius;
 
 			lock (beds)
