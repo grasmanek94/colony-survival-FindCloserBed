@@ -120,7 +120,7 @@ namespace grasmanek94.FindCloserBed
                         {
                             for (int z = minimum.y; z <= maximum.z; ++z)
                             {
-                                if (chunks.TryGetValue(address, out chunk))
+                                if (chunks.TryGetValue(new Vector3Int(x,y,z), out chunk))
                                 {
                                     FindClosestBed(chunk, position, ref bedPosition, ref bed, ref bedDistance);
                                 }
